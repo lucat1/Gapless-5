@@ -38,8 +38,9 @@ const CrossfadeShape = {
 };
 
 // A Gapless5Source "class" handles track-specific audio requests
-function Gapless5Source(parentPlayer, parentLog, inAudioPath) {
+function Gapless5Source(parentPlayer, parentLog, fetch, inAudioPath) {
   this.audioPath = inAudioPath;
+  this.fetch = fetch;
   this.trackName = inAudioPath.replace(/^.*[\\/]/, '').split('.')[0];
   const player = parentPlayer;
   const log = parentLog;
@@ -416,7 +417,7 @@ function Gapless5Source(parentPlayer, parentLog, inAudioPath) {
   };
 
   const fetchBlob = (audioPath, loader) => {
-    fetch(audioPath).then((r) => {
+    this.fetch(audioPath).then((r) => {
       if (r.ok) {
         r.blob().then((blob) => {
           loader(blob);
@@ -783,7 +784,7 @@ function Gapless5FileList(parentPlayer, parentLog, inShuffle, inLoadLimit = -1, 
 
   // Add a new song into the FileList object.
   this.add = (index, audioPath) => {
-    const source = new Gapless5Source(player, log, audioPath);
+    const source = new Gapless5Source(player, log, this.fetch, audioPath);
     this.sources.splice(index, 0, source);
 
     // insert new index in random position
@@ -826,7 +827,7 @@ function Gapless5FileList(parentPlayer, parentLog, inShuffle, inLoadLimit = -1, 
   // process inputs from constructor
   if (inTracks.length > 0) {
     for (let i = 0; i < inTracks.length; i++) {
-      this.sources.push(new Gapless5Source(player, log, inTracks[i]));
+      this.sources.push(new Gapless5Source(player, log, this.fetch, inTracks[i]));
       this.shuffledIndices.splice(Math.floor(Math.random() * this.numTracks()), 0, this.numTracks() - 1);
     }
     this.setStartingTrack(inStartingTrack);
@@ -849,6 +850,7 @@ function Gapless5FileList(parentPlayer, parentLog, inShuffle, inLoadLimit = -1, 
   *   singleMode (default = false): whether to treat single track as playlist
   *   playbackRate (default = 1.0): higher number = faster playback
   *   exclusive (default = false): whether to stop other gapless players when this is playing
+  *   fetch (default = window.fetch): a custom fetch function to get track audio data
   *
   * @param {Object.<string, any>} [options] - see description
   * @param {Object.<string, any>} [deprecated] - do not use
@@ -906,6 +908,7 @@ function Gapless5(options = {}, deprecated = {}) { // eslint-disable-line no-unu
   this.loop = options.loop || false;
   this.singleMode = options.singleMode || false;
   this.exclusive = options.exclusive || false;
+  this.fetch = options.fetch || window.fetch;
   this.queuedTrack = null;
   this.fadingTrack = null;
   this.volume = options.volume !== undefined ? options.volume : 1.0;

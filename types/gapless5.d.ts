@@ -13,6 +13,7 @@
   *   singleMode (default = false): whether to treat single track as playlist
   *   playbackRate (default = 1.0): higher number = faster playback
   *   exclusive (default = false): whether to stop other gapless players when this is playing
+  *   fetch (default = window.fetch): a custom fetch function to get track audio data
   *
   * @param {Object.<string, any>} [options] - see description
   * @param {Object.<string, any>} [deprecated] - do not use
@@ -38,6 +39,7 @@ export class Gapless5 {
       *   singleMode (default = false): whether to treat single track as playlist
       *   playbackRate (default = 1.0): higher number = faster playback
       *   exclusive (default = false): whether to stop other gapless players when this is playing
+      *   fetch (default = window.fetch): a custom fetch function to get track audio data
       *
       * @param {Object.<string, any>} [options] - see description
       * @param {Object.<string, any>} [deprecated] - do not use
